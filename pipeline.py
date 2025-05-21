@@ -11,8 +11,6 @@ from haystack.components.writers import DocumentWriter
 from haystack.components.builders import ChatPromptBuilder
 from haystack.components.generators.chat import OpenAIChatGenerator
 from haystack.dataclasses import ChatMessage
-
-os.environ["OPENAI_API_KEY"] = "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"
 urllib.request.urlretrieve("https://archive.org/stream/leonardodavinci00brocrich/leonardodavinci00brocrich_djvu.txt",
                            "davinci.txt")    
 

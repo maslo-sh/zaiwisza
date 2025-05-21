@@ -17,6 +17,7 @@ from haystack.components.generators import OpenAIGenerator
 from haystack.dataclasses import Document
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
+from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 from haystack.utils import Secret
@@ -39,6 +40,8 @@ class ScoutsAssistant:
     
     def _initialize_pipeline(self):
         """Initialize the Haystack RAG pipeline with Pinecone retriever."""
+        cleaner = DocumentCleaner()
+        splitter = DocumentSplitter()
 
         self.document_store = PineconeDocumentStore(
             index=PINECONE_INDEX_NAME,

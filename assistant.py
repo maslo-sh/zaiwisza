@@ -15,13 +15,14 @@ from typing import List, Dict, Any, Optional
 from haystack import Pipeline
 from haystack.components.generators import OpenAIGenerator
 from haystack.dataclasses import Document
-from haystack.components.embedders import SentenceTransformersTextEmbedder
+from haystack.components.embedders import OpenAITextEmbedder
 from haystack.components.builders.prompt_builder import PromptBuilder
 from haystack.components.preprocessors import DocumentCleaner, DocumentSplitter
 from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 from haystack.utils import Secret
 from dotenv import load_dotenv
+import signal, sys
 
 load_dotenv()
 
@@ -91,7 +92,7 @@ class ScoutsAssistant:
         
         # Create the RAG pipeline
         self.rag_pipeline = Pipeline()
-        self.rag_pipeline.add_component("text_embedder", SentenceTransformersTextEmbedder())
+        self.rag_pipeline.add_component("text_embedder", OpenAITextEmbedder(api_key=Secret.from_token(OPENAI_API_KEY)))
         self.rag_pipeline.add_component("retriever", self.retriever)
         self.rag_pipeline.add_component("prompt_builder", self.prompt_builder)
         self.rag_pipeline.add_component("llm", self.generator)
@@ -142,23 +143,6 @@ class ScoutsAssistant:
                 "is_relevant": True,
                 "retrieved_docs": []
             }
-    
-    def add_documents(self, documents: List[Dict[str, str]]):
-        """
-        Add new documents to the Pinecone knowledge base.
-        
-        Args:
-            documents: List of dictionaries with 'content' and 'metadata' keys
-        """
-        # This is a simplified version - in a real implementation, you would:
-        # 1. Generate embeddings for documents
-        # 2. Create unique IDs
-        # 3. Upsert to Pinecone
-        # 4. Potentially update the relevant_topics list
-        
-        print(f"Adding {len(documents)} documents to knowledge base")
-        # Implementation would depend on your specific embedding approach
-
 
 # Command-line interface for testing
 def main():
@@ -168,7 +152,14 @@ def main():
     print("Scouts d'Europe Administrative Assistant")
     print("----------------------------------------")
     print("Ask questions about scout administration, or type 'exit' to quit.")
-    
+
+    def handle_sigint(signum, frame):
+        print("\nInterrupt received, exiting...")
+        sys.exit(0)
+
+    # Register the signal handler
+    signal.signal(signal.SIGINT, handle_sigint)
+
     while True:
         user_input = input("\nQuestion: ")
         if user_input.lower() in ["exit", "quit", "q"]:

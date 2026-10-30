@@ -22,6 +22,7 @@ from haystack_integrations.document_stores.pinecone import PineconeDocumentStore
 from haystack_integrations.components.retrievers.pinecone import PineconeEmbeddingRetriever
 from haystack.utils import Secret
 from dotenv import load_dotenv
+from haystack.components.generators.utils import print_streaming_chunk
 import signal, sys
 
 load_dotenv()
@@ -55,7 +56,8 @@ class ScoutsAssistant:
         )
         # Initialize Pinecone retriever through Haystack
         self.retriever = PineconeEmbeddingRetriever(
-            document_store=self.document_store
+            document_store=self.document_store,
+            top_k=5
         )
         
         # Define the RAG prompt template
@@ -81,12 +83,12 @@ class ScoutsAssistant:
         """
         
         # Initialize prompt builder with the template
-        self.prompt_builder = PromptBuilder(template=template)
+        self.prompt_builder = PromptBuilder(template=template, required_variables=[])
         
         # Initialize the LLM component with OpenAI
         self.generator = OpenAIGenerator(
             api_key=Secret.from_token(OPENAI_API_KEY),
-            model="gpt-4",
+            model="gpt-4o-mini",
             generation_kwargs={"temperature": 0.2}
         )
         
@@ -166,7 +168,7 @@ def main():
             break
             
         response = assistant.answer_question(user_input)
-        print("\nAnswer:", response["answer"])
+        print("\nAnswer:", response["answer"]['replies'][0])
         
         # Optionally show retrieved documents for debugging
         if response.get("retrieved_docs") and len(response["retrieved_docs"]) > 0:

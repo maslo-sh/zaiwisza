@@ -53,4 +53,4 @@ def write_document(doc_name: str):
     preprocessing_pipeline.run({"sources": [doc_name]})
 
 if __name__ == "__main__":
-    write_document("pdf_skauci.pdf")
+    write_document("sklad.pdf")

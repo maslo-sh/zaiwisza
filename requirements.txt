@@ -6,3 +6,4 @@ pydantic>=2.0
 sentence-transformers>=3.0.0
 python-dotenv
 pypdf
+pinecone-haystack
